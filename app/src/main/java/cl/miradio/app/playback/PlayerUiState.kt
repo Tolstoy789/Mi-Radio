@@ -6,8 +6,8 @@ import android.net.Uri
 data class PlayerUiState(
     val stationId: String? = null,
     val stationName: String = "",
-    /** Canción o programa actual según la metadata ICY del stream, si la emite. */
-    val nowPlaying: String? = null,
+    /** Canción o programa actual según los metadatos del stream, si los emite. */
+    val nowPlaying: NowPlaying? = null,
     val frequency: String? = null,
     val artworkUri: Uri? = null,
     val isPlaying: Boolean = false,

@@ -71,6 +71,7 @@ class PlaybackService : MediaSessionService() {
         reconnectionHandler = StreamReconnectionHandler(this, player, serviceScope) {
             publishSessionExtras()
         }
+        player.addListener(NowPlayingTracker(player))
         player.addListener(object : Player.Listener {
             override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
                 mediaItem?.mediaId?.takeIf { it.isNotEmpty() }?.let { preferences.lastStationId = it }

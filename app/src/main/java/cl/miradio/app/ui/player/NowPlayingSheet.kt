@@ -1,6 +1,14 @@
 package cl.miradio.app.ui.player
 
+import android.app.SearchManager
+import android.content.ActivityNotFoundException
+import android.content.Intent
 import android.os.SystemClock
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,6 +25,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.VolumeDown
 import androidx.compose.material.icons.automirrored.rounded.VolumeUp
 import androidx.compose.material.icons.rounded.Bedtime
+import androidx.compose.material.icons.rounded.MusicNote
+import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -24,6 +34,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Slider
+import androidx.compose.material3.Surface
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -38,11 +49,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import cl.miradio.app.R
+import cl.miradio.app.playback.NowPlaying
 import cl.miradio.app.playback.PlaybackContract
 import cl.miradio.app.playback.PlayerUiState
 import cl.miradio.app.ui.components.LiveBadge
@@ -99,7 +112,7 @@ fun NowPlayingSheet(
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
             )
-            playerStatusText(state)?.let {
+            playerStatusText(state, includeNowPlaying = false)?.let {
                 Text(
                     text = it,
                     style = MaterialTheme.typography.bodyMedium,
@@ -108,6 +121,15 @@ fun NowPlayingSheet(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
                 )
+            }
+            AnimatedContent(
+                targetState = state.nowPlaying.takeIf { state.error == null },
+                transitionSpec = { fadeIn() togetherWith fadeOut() },
+                label = "nowPlaying",
+            ) { nowPlaying ->
+                if (nowPlaying != null) {
+                    NowPlayingCard(nowPlaying, modifier = Modifier.padding(top = 16.dp))
+                }
             }
             Spacer(Modifier.height(24.dp))
             PlayPauseButton(
@@ -121,6 +143,63 @@ fun NowPlayingSheet(
             Spacer(Modifier.height(16.dp))
             SleepTimerControl(endElapsed = state.sleepTimerEndElapsed, onSleepTimer = onSleepTimer)
             Spacer(Modifier.height(16.dp))
+        }
+    }
+}
+
+/** Canción en curso. Tocarla la busca en la web para saber más o guardarla. */
+@Composable
+private fun NowPlayingCard(nowPlaying: NowPlaying, modifier: Modifier = Modifier) {
+    val context = LocalContext.current
+    Surface(
+        onClick = {
+            val intent = Intent(Intent.ACTION_WEB_SEARCH).putExtra(SearchManager.QUERY, nowPlaying.display)
+            try {
+                context.startActivity(intent)
+            } catch (_: ActivityNotFoundException) {
+                // Sin buscador instalado: la tarjeta queda solo informativa.
+            }
+        },
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        color = MiniPlayerSurface,
+        border = BorderStroke(1.dp, CardBorder),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Icon(Icons.Rounded.MusicNote, contentDescription = null, tint = Accent)
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.now_playing_label),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = TextSecondary,
+                )
+                Text(
+                    text = nowPlaying.title,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = TextPrimary,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                nowPlaying.artist?.let {
+                    Text(
+                        text = it,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = TextSecondary,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            }
+            Icon(
+                Icons.Rounded.Search,
+                contentDescription = stringResource(R.string.action_search_song),
+                tint = TextSecondary,
+                modifier = Modifier.size(20.dp),
+            )
         }
     }
 }

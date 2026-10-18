@@ -6,12 +6,15 @@ import cl.miradio.app.R
 import cl.miradio.app.playback.PlayerError
 import cl.miradio.app.playback.PlayerUiState
 
-/** Línea secundaria del reproductor: error, reconexión o lo que suena ahora. */
+/**
+ * Línea secundaria del reproductor: error, reconexión o lo que suena ahora.
+ * Con [includeNowPlaying] en `false` la canción se omite porque se muestra aparte.
+ */
 @Composable
-fun playerStatusText(state: PlayerUiState): String? = when {
+fun playerStatusText(state: PlayerUiState, includeNowPlaying: Boolean = true): String? = when {
     state.isReconnecting -> stringResource(R.string.player_reconnecting)
     state.error != null -> stringResource(state.error.messageRes)
-    state.nowPlaying != null -> state.nowPlaying
+    includeNowPlaying && state.nowPlaying != null -> state.nowPlaying.display
     else -> state.frequency
 }
 
