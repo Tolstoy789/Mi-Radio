@@ -1,0 +1,9 @@
+<resources>
+    <color name="background">#FF121214</color>
+    <color name="surface_card">#FF1E1E24</color>
+    <color name="card_border">#FF2E2E38</color>
+    <color name="mini_player">#FF25252E</color>
+    <color name="accent">#FFFF5722</color>
+    <color name="text_primary">#FFFFFFFF</color>
+    <color name="text_secondary">#FF9E9EA7</color>
+</resources>
