@@ -31,6 +31,19 @@ abstract class StationDao {
     )
     abstract fun observeFavorites(): Flow<List<StationWithFavorite>>
 
+    /** Estaciones escuchadas, de la más reciente a la más antigua. */
+    @Query(
+        """
+        SELECT s.*, (f.station_uuid IS NOT NULL) AS is_favorite
+        FROM recent_plays r
+        INNER JOIN stations s ON s.station_uuid = r.station_uuid
+        LEFT JOIN favorites f ON f.station_uuid = s.station_uuid
+        ORDER BY r.played_at DESC
+        LIMIT :limit
+        """,
+    )
+    abstract fun observeRecent(limit: Int): Flow<List<StationWithFavorite>>
+
     @Query("SELECT * FROM stations WHERE station_uuid = :stationUuid LIMIT 1")
     abstract suspend fun getStation(stationUuid: String): StationEntity?
 

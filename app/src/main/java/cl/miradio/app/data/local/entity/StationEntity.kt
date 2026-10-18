@@ -44,6 +44,14 @@ data class FavoriteEntity(
     @ColumnInfo(name = "added_at") val addedAt: Long,
 )
 
+/** Última vez que se escuchó cada estación, para la fila "Escuchadas recientemente". */
+@Entity(tableName = "recent_plays", indices = [Index("played_at")])
+data class RecentPlayEntity(
+    @PrimaryKey
+    @ColumnInfo(name = "station_uuid") val stationUuid: String,
+    @ColumnInfo(name = "played_at") val playedAt: Long,
+)
+
 /** Resultado de unir una estación con su estado de favorito. */
 data class StationWithFavorite(
     @Embedded val station: StationEntity,

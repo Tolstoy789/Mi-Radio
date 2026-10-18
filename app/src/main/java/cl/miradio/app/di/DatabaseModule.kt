@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import cl.miradio.app.data.local.RadioDatabase
 import cl.miradio.app.data.local.dao.FavoriteDao
+import cl.miradio.app.data.local.dao.RecentPlayDao
 import cl.miradio.app.data.local.dao.StationDao
 import dagger.Module
 import dagger.Provides
@@ -20,6 +21,7 @@ object DatabaseModule {
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): RadioDatabase =
         Room.databaseBuilder(context, RadioDatabase::class.java, RadioDatabase.NAME)
+            .addMigrations(RadioDatabase.MIGRATION_1_2)
             .build()
 
     @Provides
@@ -27,4 +29,7 @@ object DatabaseModule {
 
     @Provides
     fun provideFavoriteDao(db: RadioDatabase): FavoriteDao = db.favoriteDao()
+
+    @Provides
+    fun provideRecentPlayDao(db: RadioDatabase): RecentPlayDao = db.recentPlayDao()
 }

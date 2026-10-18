@@ -1,5 +1,6 @@
 package cl.miradio.app.data.repository
 
+import cl.miradio.app.domain.model.ChileRegion
 import cl.miradio.app.domain.model.Station
 import cl.miradio.app.domain.model.StationCategory
 import kotlinx.coroutines.flow.Flow
@@ -10,10 +11,28 @@ import kotlinx.coroutines.flow.Flow
  */
 interface StationRepository {
 
-    /** Estaciones filtradas por texto (nombre o tag, sin distinguir tildes) y categoría. */
-    fun observeStations(query: String, category: StationCategory): Flow<List<Station>>
+    /**
+     * Estaciones filtradas por texto (nombre o tag, sin distinguir tildes), categoría
+     * y región. Con [region] en `null` no se filtra por región.
+     */
+    fun observeStations(
+        query: String,
+        category: StationCategory,
+        region: ChileRegion? = null,
+    ): Flow<List<Station>>
+
+    /** Regiones que tienen al menos una estación en caché, de norte a sur. */
+    fun observeRegions(): Flow<List<ChileRegion>>
 
     fun observeFavorites(): Flow<List<Station>>
+
+    /** Últimas estaciones escuchadas, la más reciente primero. */
+    fun observeRecent(): Flow<List<Station>>
+
+    /** Guarda la estación en el historial de escucha local. */
+    suspend fun recordPlay(stationId: String)
+
+    suspend fun clearRecent()
 
     /**
      * Descarga las estaciones si la caché está vacía, vencida o si [force] es `true`.

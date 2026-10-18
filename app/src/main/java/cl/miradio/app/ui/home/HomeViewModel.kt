@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import cl.miradio.app.data.repository.RefreshResult
 import cl.miradio.app.data.repository.StationRepository
+import cl.miradio.app.domain.model.ChileRegion
 import cl.miradio.app.domain.model.Station
 import cl.miradio.app.domain.model.StationCategory
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -34,6 +35,7 @@ class HomeViewModel @Inject constructor(
 
     private val query = MutableStateFlow("")
     private val category = MutableStateFlow(StationCategory.ALL)
+    private val region = MutableStateFlow<ChileRegion?>(null)
     private val fetchState = MutableStateFlow(FetchState())
 
     private val _messages = Channel<HomeMessage>(Channel.BUFFERED)
@@ -44,19 +46,30 @@ class HomeViewModel @Inject constructor(
     private val stations = combine(
         query.debounce { if (it.isEmpty()) 0L else SEARCH_DEBOUNCE_MS }.distinctUntilChanged(),
         category,
-    ) { q, c -> q to c }
-        .flatMapLatest { (q, c) -> repository.observeStations(q, c) }
+        region,
+    ) { q, c, r -> Filter(q, c, r) }
+        .flatMapLatest { repository.observeStations(it.query, it.category, it.region) }
+
+    private val filter = combine(query, category, region) { q, c, r -> Filter(q, c, r) }
+
+    private val extras = combine(
+        repository.observeRegions().onStart { emit(emptyList()) },
+        repository.observeRecent().onStart { emit(emptyList()) },
+    ) { regions, recent -> regions to recent }
 
     val uiState: StateFlow<HomeUiState> = combine(
         stations.onStart<List<Station>?> { emit(null) },
-        query,
-        category,
+        filter,
+        extras,
         fetchState,
-    ) { stations, query, category, fetch ->
+    ) { stations, filter, (regions, recent), fetch ->
         HomeUiState(
             stations = stations,
-            query = query,
-            category = category,
+            query = filter.query,
+            category = filter.category,
+            region = filter.region,
+            regions = regions,
+            recent = recent,
             isFetching = fetch.isFetching,
             blockingError = fetch.blockingError,
         )
@@ -72,6 +85,14 @@ class HomeViewModel @Inject constructor(
 
     fun onCategorySelected(value: StationCategory) {
         category.value = value
+    }
+
+    fun onRegionSelected(value: ChileRegion?) {
+        region.value = value
+    }
+
+    fun onClearRecent() {
+        viewModelScope.launch { repository.clearRecent() }
     }
 
     fun onRefresh() = refresh(force = true)
@@ -99,6 +120,8 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+
+    private data class Filter(val query: String, val category: StationCategory, val region: ChileRegion?)
 
     private data class FetchState(
         val isFetching: Boolean = false,

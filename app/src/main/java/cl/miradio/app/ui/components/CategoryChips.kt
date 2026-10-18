@@ -26,12 +26,15 @@ fun CategoryChips(
     selected: StationCategory,
     onSelected: (StationCategory) -> Unit,
     modifier: Modifier = Modifier,
+    /** Chip extra al inicio de la fila (p. ej. el selector de región). */
+    leadingContent: (@Composable () -> Unit)? = null,
 ) {
     LazyRow(
         modifier = modifier,
         contentPadding = PaddingValues(horizontal = 16.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
+        if (leadingContent != null) item(key = "leading") { leadingContent() }
         items(StationCategory.entries, key = { it.name }) { category ->
             val isSelected = category == selected
             FilterChip(

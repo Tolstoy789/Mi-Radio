@@ -14,6 +14,12 @@
     <string name="category_pop">Pop</string>
     <string name="category_rock">Rock</string>
 
+    <!-- Regiones y recientes -->
+    <string name="region_all">Todo Chile</string>
+    <string name="region_picker_title">Elige una región</string>
+    <string name="recent_title">Escuchadas recientemente</string>
+    <string name="recent_clear">Borrar</string>
+
     <!-- Acciones -->
     <string name="action_menu">Menú</string>
     <string name="action_search">Buscar</string>
