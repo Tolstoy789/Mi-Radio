@@ -21,22 +21,6 @@ abstract class StationDao {
     )
     abstract fun observeStations(): Flow<List<StationWithFavorite>>
 
-    /**
-     * Filtra por nombre o tag. [query] y [tag] se comparan con LIKE, así que
-     * el llamador debe pasarlos ya en minúsculas; un valor vacío no filtra.
-     */
-    @Query(
-        """
-        SELECT s.*, (f.station_uuid IS NOT NULL) AS is_favorite
-        FROM stations s
-        LEFT JOIN favorites f ON f.station_uuid = s.station_uuid
-        WHERE (:query = '' OR LOWER(s.name) LIKE '%' || :query || '%')
-          AND (:tag = '' OR s.tags LIKE '%' || :tag || '%')
-        ORDER BY s.popularity_rank ASC
-        """,
-    )
-    abstract fun observeFiltered(query: String, tag: String): Flow<List<StationWithFavorite>>
-
     @Query(
         """
         SELECT s.*, 1 AS is_favorite

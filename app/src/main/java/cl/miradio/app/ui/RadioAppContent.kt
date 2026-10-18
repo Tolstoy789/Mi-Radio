@@ -1,0 +1,161 @@
+package cl.miradio.app.ui
+
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Icon
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavDestination
+import androidx.navigation.NavDestination.Companion.hierarchy
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import cl.miradio.app.domain.model.Station
+import cl.miradio.app.ui.favorites.FavoritesRoute
+import cl.miradio.app.ui.home.HomeRoute
+import cl.miradio.app.ui.navigation.RadioDestination
+import cl.miradio.app.ui.player.FloatingMiniPlayer
+import cl.miradio.app.ui.player.NowPlayingSheet
+import cl.miradio.app.ui.player.PlayerViewModel
+import cl.miradio.app.ui.theme.Background
+import cl.miradio.app.ui.theme.CoralAccent
+import cl.miradio.app.ui.theme.TextSecondary
+
+/** Raíz de la UI: navegación inferior, mini-player flotante y hoja Now Playing. */
+@Composable
+fun RadioAppContent(playerViewModel: PlayerViewModel = hiltViewModel()) {
+    val navController = rememberNavController()
+    val playerState by playerViewModel.state.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
+    var showNowPlaying by rememberSaveable { mutableStateOf(false) }
+
+    val play = rememberPlayWithNotificationPermission(playerViewModel::play)
+
+    Scaffold(
+        containerColor = Background,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        bottomBar = {
+            Column {
+                if (playerState.hasStation) {
+                    FloatingMiniPlayer(
+                        state = playerState,
+                        onClick = { showNowPlaying = true },
+                        onTogglePlayPause = playerViewModel::togglePlayPause,
+                    )
+                }
+                RadioNavigationBar(
+                    currentRoute = navController.currentBackStackEntryAsState().value?.destination,
+                    onNavigate = { destination ->
+                        navController.navigate(destination.route) {
+                            popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    },
+                )
+            }
+        },
+    ) { padding ->
+        NavHost(
+            navController = navController,
+            startDestination = RadioDestination.HOME.route,
+            modifier = Modifier.padding(padding),
+        ) {
+            composable(RadioDestination.HOME.route) {
+                HomeRoute(
+                    currentStationId = playerState.stationId,
+                    onPlay = play,
+                    snackbarHostState = snackbarHostState,
+                )
+            }
+            composable(RadioDestination.FAVORITES.route) {
+                FavoritesRoute(currentStationId = playerState.stationId, onPlay = play)
+            }
+        }
+    }
+
+    if (showNowPlaying && playerState.hasStation) {
+        NowPlayingSheet(
+            state = playerState,
+            onDismiss = { showNowPlaying = false },
+            onTogglePlayPause = playerViewModel::togglePlayPause,
+            onVolumeChange = playerViewModel::setVolume,
+            onSleepTimer = playerViewModel::setSleepTimer,
+        )
+    }
+}
+
+@Composable
+private fun RadioNavigationBar(
+    currentRoute: NavDestination?,
+    onNavigate: (RadioDestination) -> Unit,
+) {
+    NavigationBar(containerColor = Background) {
+        RadioDestination.entries.forEach { destination ->
+            val selected = currentRoute?.hierarchy?.any { it.route == destination.route } == true
+            NavigationBarItem(
+                selected = selected,
+                onClick = { onNavigate(destination) },
+                icon = {
+                    Icon(
+                        imageVector = if (selected) destination.selectedIcon else destination.unselectedIcon,
+                        contentDescription = null,
+                    )
+                },
+                label = { Text(stringResource(destination.labelRes)) },
+                colors = NavigationBarItemDefaults.colors(
+                    selectedIconColor = CoralAccent,
+                    selectedTextColor = CoralAccent,
+                    indicatorColor = CoralAccent.copy(alpha = 0.16f),
+                    unselectedIconColor = TextSecondary,
+                    unselectedTextColor = TextSecondary,
+                ),
+            )
+        }
+    }
+}
+
+/**
+ * En Android 13+ la notificación multimedia necesita permiso. Se pide la primera
+ * vez que el usuario toca una radio; la reproducción arranca igual si lo rechaza.
+ */
+@Composable
+private fun rememberPlayWithNotificationPermission(play: (Station) -> Unit): (Station) -> Unit {
+    val context = LocalContext.current
+    val launcher = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { }
+    var asked by rememberSaveable { mutableStateOf(false) }
+    return { station ->
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU && !asked &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) !=
+            PackageManager.PERMISSION_GRANTED
+        ) {
+            asked = true
+            launcher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+        play(station)
+    }
+}
