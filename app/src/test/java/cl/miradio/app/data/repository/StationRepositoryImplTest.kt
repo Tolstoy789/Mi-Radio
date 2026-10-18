@@ -3,9 +3,11 @@ package cl.miradio.app.data.repository
 import cl.miradio.app.data.local.dao.FavoriteDao
 import cl.miradio.app.data.local.dao.RecentPlayDao
 import cl.miradio.app.data.local.dao.StationDao
+import cl.miradio.app.data.local.dao.UnavailableStationDao
 import cl.miradio.app.data.local.entity.FavoriteEntity
 import cl.miradio.app.data.local.entity.RecentPlayEntity
 import cl.miradio.app.data.local.entity.StationWithFavorite
+import cl.miradio.app.data.local.entity.UnavailableStationEntity
 import cl.miradio.app.data.mapper.toEntities
 import cl.miradio.app.data.remote.RadioBrowserApi
 import cl.miradio.app.data.remote.model.StationDto
@@ -28,8 +30,12 @@ class StationRepositoryImplTest {
     private val stationDao = mockk<StationDao>(relaxUnitFun = true)
     private val favoriteDao = mockk<FavoriteDao>(relaxUnitFun = true)
     private val recentPlayDao = mockk<RecentPlayDao>(relaxUnitFun = true)
+    private val unavailableDao = mockk<UnavailableStationDao>(relaxUnitFun = true) {
+        every { observeSince(any()) } returns flowOf(emptyList())
+    }
     private var now = 1_000_000_000L
-    private val repository = StationRepositoryImpl(api, stationDao, favoriteDao, recentPlayDao) { now }
+    private val repository =
+        StationRepositoryImpl(api, stationDao, favoriteDao, recentPlayDao, unavailableDao) { now }
 
     private val dtos = listOf(
         StationDto(stationUuid = "1", name = "Radio Bío-Bío", url = "http://a", tags = "noticias,chile", state = "Concepción"),
@@ -134,5 +140,23 @@ class StationRepositoryImplTest {
     fun `recordPlay guarda la escucha con la hora actual`() = runTest {
         repository.recordPlay("2")
         coVerify { recentPlayDao.record(RecentPlayEntity("2", now), StationRepositoryImpl.RECENT_KEPT) }
+    }
+
+    @Test
+    fun `marca radios sin senal y sugiere una parecida disponible`() = runTest {
+        val rows = dtos.toEntities(syncedAt = now).map { StationWithFavorite(it, isFavorite = false) }
+        every { stationDao.observeStations() } returns flowOf(rows)
+        every { unavailableDao.observeSince(now - StationRepositoryImpl.UNAVAILABLE_TTL_MS) } returns flowOf(listOf("3"))
+
+        val stations = repository.observeStations("", StationCategory.ALL).first()
+        assertEquals(listOf(false, false, true), stations.map { it.isUnavailable })
+
+        // "3" es la única parecida a "2", pero está caída; "2" sí sirve como reemplazo de "3".
+        assertEquals(null, repository.findSimilar("2"))
+        assertEquals("2", repository.findSimilar("3")?.id)
+
+        repository.markUnavailable("1")
+        coVerify { unavailableDao.upsert(UnavailableStationEntity("1", now)) }
+        coVerify { unavailableDao.deleteOlderThan(now - StationRepositoryImpl.UNAVAILABLE_TTL_MS) }
     }
 }

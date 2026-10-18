@@ -9,6 +9,7 @@ import cl.miradio.app.domain.model.Station
 
 private const val EXTRA_FREQUENCY = "frequency"
 private const val EXTRA_SUBTITLE = "subtitle"
+private const val EXTRA_BITRATE = "bitrate"
 private const val EXTRA_NOW_PLAYING_TITLE = "now_playing_title"
 private const val EXTRA_NOW_PLAYING_ARTIST = "now_playing_artist"
 
@@ -33,6 +34,7 @@ fun Station.toMediaItem(): MediaItem {
             Bundle().apply {
                 putString(EXTRA_FREQUENCY, frequency)
                 putString(EXTRA_SUBTITLE, subtitle)
+                putInt(EXTRA_BITRATE, bitrate)
             },
         )
         .build()
@@ -51,6 +53,10 @@ fun Station.toMediaItem(): MediaItem {
 /** Dial guardado en los extras del [MediaItem], para mostrarlo en la UI. */
 val MediaMetadata.frequency: String?
     get() = extras?.getString(EXTRA_FREQUENCY)
+
+/** Bitrate declarado por la radio en kbps, o `null` si no lo informa. */
+val MediaMetadata.bitrateKbps: Int?
+    get() = extras?.getInt(EXTRA_BITRATE, 0)?.takeIf { it > 0 }
 
 /** Nombre de la radio, aunque el título ya muestre la canción en curso. */
 val MediaMetadata.stationName: String

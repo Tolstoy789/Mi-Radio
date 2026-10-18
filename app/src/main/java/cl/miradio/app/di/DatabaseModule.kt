@@ -6,6 +6,7 @@ import cl.miradio.app.data.local.RadioDatabase
 import cl.miradio.app.data.local.dao.FavoriteDao
 import cl.miradio.app.data.local.dao.RecentPlayDao
 import cl.miradio.app.data.local.dao.StationDao
+import cl.miradio.app.data.local.dao.UnavailableStationDao
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,7 +22,7 @@ object DatabaseModule {
     @Singleton
     fun provideDatabase(@ApplicationContext context: Context): RadioDatabase =
         Room.databaseBuilder(context, RadioDatabase::class.java, RadioDatabase.NAME)
-            .addMigrations(RadioDatabase.MIGRATION_1_2)
+            .addMigrations(RadioDatabase.MIGRATION_1_2, RadioDatabase.MIGRATION_2_3)
             .build()
 
     @Provides
@@ -32,4 +33,7 @@ object DatabaseModule {
 
     @Provides
     fun provideRecentPlayDao(db: RadioDatabase): RecentPlayDao = db.recentPlayDao()
+
+    @Provides
+    fun provideUnavailableStationDao(db: RadioDatabase): UnavailableStationDao = db.unavailableStationDao()
 }

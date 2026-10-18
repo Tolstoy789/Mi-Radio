@@ -52,6 +52,14 @@ data class RecentPlayEntity(
     @ColumnInfo(name = "played_at") val playedAt: Long,
 )
 
+/** Radio que falló al reproducirla; la tarjeta muestra "Sin señal" por unas horas. */
+@Entity(tableName = "unavailable_stations")
+data class UnavailableStationEntity(
+    @PrimaryKey
+    @ColumnInfo(name = "station_uuid") val stationUuid: String,
+    @ColumnInfo(name = "failed_at") val failedAt: Long,
+)
+
 /** Resultado de unir una estación con su estado de favorito. */
 data class StationWithFavorite(
     @Embedded val station: StationEntity,

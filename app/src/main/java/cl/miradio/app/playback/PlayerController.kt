@@ -137,6 +137,7 @@ class PlayerController @Inject constructor(
             nowPlaying = stationMetadata.nowPlaying,
             frequency = stationMetadata.frequency,
             artworkUri = stationMetadata.artworkUri,
+            bitrateKbps = stationMetadata.bitrateKbps,
             isPlaying = player.isPlaying,
             isBuffering = player.playWhenReady && player.playbackState == Player.STATE_BUFFERING,
             isReconnecting = extras.getBoolean(PlaybackContract.KEY_IS_RECONNECTING, false),

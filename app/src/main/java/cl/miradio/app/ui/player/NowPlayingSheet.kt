@@ -19,12 +19,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.VolumeDown
 import androidx.compose.material.icons.automirrored.rounded.VolumeUp
 import androidx.compose.material.icons.rounded.Bedtime
+import androidx.compose.material.icons.rounded.DataSaverOn
+import androidx.compose.material.icons.rounded.Shuffle
 import androidx.compose.material.icons.rounded.MusicNote
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,6 +36,7 @@ import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.SliderDefaults
@@ -55,6 +59,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import cl.miradio.app.R
+import cl.miradio.app.data.settings.megabytesPerHour
 import cl.miradio.app.playback.NowPlaying
 import cl.miradio.app.playback.PlaybackContract
 import cl.miradio.app.playback.PlayerUiState
@@ -77,6 +82,9 @@ fun NowPlayingSheet(
     onTogglePlayPause: () -> Unit,
     onVolumeChange: (Float) -> Unit,
     onSleepTimer: (minutes: Int) -> Unit,
+    isStationDown: Boolean = false,
+    onPlaySimilar: () -> Unit = {},
+    isDataSaverActive: Boolean = false,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     ModalBottomSheet(
@@ -122,6 +130,17 @@ fun NowPlayingSheet(
                     overflow = TextOverflow.Ellipsis,
                 )
             }
+            if (isStationDown) {
+                OutlinedButton(
+                    onClick = onPlaySimilar,
+                    modifier = Modifier.padding(top = 12.dp),
+                    border = BorderStroke(1.dp, Accent),
+                ) {
+                    Icon(Icons.Rounded.Shuffle, contentDescription = null, tint = Accent, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(8.dp))
+                    Text(stringResource(R.string.similar_action), color = TextPrimary)
+                }
+            }
             AnimatedContent(
                 targetState = state.nowPlaying.takeIf { state.error == null },
                 transitionSpec = { fadeIn() togetherWith fadeOut() },
@@ -142,6 +161,7 @@ fun NowPlayingSheet(
             VolumeControl(volume = state.volume, onVolumeChange = onVolumeChange)
             Spacer(Modifier.height(16.dp))
             SleepTimerControl(endElapsed = state.sleepTimerEndElapsed, onSleepTimer = onSleepTimer)
+            DataConsumptionLine(bitrateKbps = state.bitrateKbps, isDataSaverActive = isDataSaverActive)
             Spacer(Modifier.height(16.dp))
         }
     }
@@ -201,6 +221,29 @@ private fun NowPlayingCard(nowPlaying: NowPlaying, modifier: Modifier = Modifier
                 modifier = Modifier.size(20.dp),
             )
         }
+    }
+}
+
+/** "≈ 58 MB por hora · Ahorro de datos activo", según el bitrate de la radio. */
+@Composable
+private fun DataConsumptionLine(bitrateKbps: Int?, isDataSaverActive: Boolean) {
+    val parts = listOfNotNull(
+        bitrateKbps?.let { stringResource(R.string.data_per_hour, megabytesPerHour(it)) },
+        if (isDataSaverActive) stringResource(R.string.data_saver_active_short) else null,
+    )
+    if (parts.isEmpty()) return
+    Row(
+        modifier = Modifier.padding(top = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        Icon(
+            Icons.Rounded.DataSaverOn,
+            contentDescription = null,
+            tint = if (isDataSaverActive) Accent else TextSecondary,
+            modifier = Modifier.size(16.dp),
+        )
+        Text(parts.joinToString(" · "), style = MaterialTheme.typography.bodySmall, color = TextSecondary)
     }
 }
 

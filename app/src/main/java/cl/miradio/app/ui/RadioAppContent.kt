@@ -16,6 +16,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,13 +35,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import cl.miradio.app.R
 import cl.miradio.app.domain.model.Station
 import cl.miradio.app.ui.favorites.FavoritesRoute
 import cl.miradio.app.ui.home.HomeRoute
 import cl.miradio.app.ui.navigation.RadioDestination
 import cl.miradio.app.ui.player.FloatingMiniPlayer
 import cl.miradio.app.ui.player.NowPlayingSheet
+import cl.miradio.app.ui.player.PlayerMessage
 import cl.miradio.app.ui.player.PlayerViewModel
+import cl.miradio.app.ui.settings.DataSaverSheet
 import cl.miradio.app.ui.theme.Background
 import cl.miradio.app.ui.theme.Accent
 import cl.miradio.app.ui.theme.TextSecondary
@@ -50,8 +54,22 @@ import cl.miradio.app.ui.theme.TextSecondary
 fun RadioAppContent(playerViewModel: PlayerViewModel = hiltViewModel()) {
     val navController = rememberNavController()
     val playerState by playerViewModel.state.collectAsStateWithLifecycle()
+    val isStationDown by playerViewModel.isStationDown.collectAsStateWithLifecycle()
+    val isDataSaverActive by playerViewModel.isDataSaverActive.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     var showNowPlaying by rememberSaveable { mutableStateOf(false) }
+    var showDataSaver by rememberSaveable { mutableStateOf(false) }
+    val context = LocalContext.current
+
+    LaunchedEffect(playerViewModel) {
+        playerViewModel.messages.collect { message ->
+            val text = when (message) {
+                PlayerMessage.NoSimilarStation -> context.getString(R.string.similar_not_found)
+                is PlayerMessage.SwitchedTo -> context.getString(R.string.similar_switched, message.stationName)
+            }
+            snackbarHostState.showSnackbar(text)
+        }
+    }
 
     val play = rememberPlayWithNotificationPermission(playerViewModel::play)
 
@@ -90,6 +108,7 @@ fun RadioAppContent(playerViewModel: PlayerViewModel = hiltViewModel()) {
                     currentStationId = playerState.stationId,
                     onPlay = play,
                     snackbarHostState = snackbarHostState,
+                    onOpenDataSaver = { showDataSaver = true },
                 )
             }
             composable(RadioDestination.FAVORITES.route) {
@@ -105,7 +124,14 @@ fun RadioAppContent(playerViewModel: PlayerViewModel = hiltViewModel()) {
             onTogglePlayPause = playerViewModel::togglePlayPause,
             onVolumeChange = playerViewModel::setVolume,
             onSleepTimer = playerViewModel::setSleepTimer,
+            isStationDown = isStationDown,
+            onPlaySimilar = playerViewModel::playSimilar,
+            isDataSaverActive = isDataSaverActive,
         )
+    }
+
+    if (showDataSaver) {
+        DataSaverSheet(onDismiss = { showDataSaver = false })
     }
 }
 

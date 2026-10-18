@@ -10,6 +10,8 @@ data class PlayerUiState(
     val nowPlaying: NowPlaying? = null,
     val frequency: String? = null,
     val artworkUri: Uri? = null,
+    /** Bitrate declarado por la radio, para estimar el consumo de datos. */
+    val bitrateKbps: Int? = null,
     val isPlaying: Boolean = false,
     val isBuffering: Boolean = false,
     val isReconnecting: Boolean = false,
@@ -22,6 +24,16 @@ data class PlayerUiState(
 
     /** La UI muestra un spinner en vez de Play/Pause. */
     val showLoading: Boolean get() = isBuffering || isReconnecting
+
+    /**
+     * El error es de la radio y no de la conexión del usuario. Un error de red con
+     * internet disponible significa que el servidor de la radio no responde.
+     */
+    fun isStationFault(isOnline: Boolean): Boolean = when (error) {
+        null -> false
+        PlayerError.STREAM_UNAVAILABLE, PlayerError.UNSUPPORTED_FORMAT -> !isReconnecting
+        PlayerError.NETWORK, PlayerError.UNKNOWN -> isOnline && !isReconnecting
+    }
 }
 
 enum class PlayerError { NETWORK, STREAM_UNAVAILABLE, UNSUPPORTED_FORMAT, UNKNOWN }
