@@ -52,6 +52,29 @@
     <string name="sleep_timer_option">%1$d min</string>
     <string name="sleep_timer_cancel">Cancelar</string>
 
+    <!-- Ahorro de datos -->
+    <string name="data_saver_title">Ahorro de datos</string>
+    <string name="data_saver_status_on">Activo ahora</string>
+    <string name="data_saver_status_off">Inactivo en esta red</string>
+    <string name="data_saver_mode_off">Desactivado</string>
+    <string name="data_saver_mode_off_desc">La app usa la red sin restricciones.</string>
+    <string name="data_saver_mode_mobile">Solo con datos móviles</string>
+    <string name="data_saver_mode_mobile_desc">Se activa en redes con costo, como el plan del celular.</string>
+    <string name="data_saver_mode_always">Siempre</string>
+    <string name="data_saver_mode_always_desc">También en Wi-Fi.</string>
+    <string name="data_saver_explanation">Con el ahorro activo, una radio en pausa deja de descargar a los 15 segundos (si no, a los 2 minutos) y los logos que no están guardados no se descargan.</string>
+    <string name="data_usage_title">Consumo de la radio este mes</string>
+    <string name="data_usage_mobile">Datos móviles</string>
+    <string name="data_usage_wifi">Wi-Fi</string>
+    <string name="data_per_hour">≈ %1$d MB por hora</string>
+    <string name="data_saver_active_short">Ahorro de datos activo</string>
+
+    <!-- Radios sin señal -->
+    <string name="station_unavailable">Sin señal</string>
+    <string name="similar_action">Escuchar una radio parecida</string>
+    <string name="similar_switched">Cambiamos a %1$s</string>
+    <string name="similar_not_found">No encontramos otra radio parecida disponible.</string>
+
     <!-- Estados -->
     <string name="error_title">No pudimos cargar las radios</string>
     <string name="error_no_connection">Revisa tu conexión a internet e inténtalo de nuevo.</string>

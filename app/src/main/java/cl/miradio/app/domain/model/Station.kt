@@ -16,6 +16,8 @@ data class Station(
     val isHls: Boolean,
     val votes: Int,
     val isFavorite: Boolean,
+    /** Falló hace poco al intentar reproducirla (la radio no está transmitiendo). */
+    val isUnavailable: Boolean = false,
 )
 
 /** Línea secundaria de la tarjeta: "93.3 FM · Santiago", solo lo que se conozca. */

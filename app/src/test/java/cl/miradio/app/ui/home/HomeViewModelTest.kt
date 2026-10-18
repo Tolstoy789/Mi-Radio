@@ -67,6 +67,9 @@ class HomeViewModelTest {
         override fun observeRecent(): Flow<List<Station>> = recent
         override suspend fun recordPlay(stationId: String) = Unit
         override suspend fun clearRecent() { recent.value = emptyList() }
+        override suspend fun markUnavailable(stationId: String) = Unit
+        override suspend fun markAvailable(stationId: String) = Unit
+        override suspend fun findSimilar(stationId: String): Station? = null
         override suspend fun refresh(force: Boolean): RefreshResult = refreshResult.await()
         override suspend fun toggleFavorite(stationId: String) { favoritesToggled += stationId }
         override suspend fun registerClick(stationId: String) = Unit

@@ -34,6 +34,15 @@ interface StationRepository {
 
     suspend fun clearRecent()
 
+    /** Marca que la radio no está transmitiendo; las listas la muestran como "Sin señal". */
+    suspend fun markUnavailable(stationId: String)
+
+    /** La radio volvió a sonar. */
+    suspend fun markAvailable(stationId: String)
+
+    /** La radio disponible más parecida a [stationId], o `null` si no hay ninguna. */
+    suspend fun findSimilar(stationId: String): Station?
+
     /**
      * Descarga las estaciones si la caché está vacía, vencida o si [force] es `true`.
      * Devuelve [RefreshResult] en vez de lanzar, para que la UI decida cómo mostrarlo.

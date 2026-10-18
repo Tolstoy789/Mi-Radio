@@ -19,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FavoriteBorder
 import androidx.compose.material.icons.rounded.GraphicEq
+import androidx.compose.material.icons.rounded.SignalCellularConnectedNoInternet0Bar
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -29,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -42,6 +44,7 @@ import cl.miradio.app.ui.theme.CardBorderWidth
 import cl.miradio.app.ui.theme.CardShape
 import cl.miradio.app.ui.theme.CardSurface
 import cl.miradio.app.ui.theme.Accent
+import cl.miradio.app.ui.theme.LiveRed
 import cl.miradio.app.ui.theme.TextPrimary
 import cl.miradio.app.ui.theme.TextSecondary
 
@@ -67,7 +70,10 @@ fun StationCard(
                     url = station.faviconUrl,
                     contentDescription = station.name,
                     shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier.fillMaxWidth().aspectRatio(1f),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .aspectRatio(1f)
+                        .alpha(if (station.isUnavailable) 0.45f else 1f),
                 )
                 FavoriteButton(
                     isFavorite = station.isFavorite,
@@ -94,13 +100,31 @@ fun StationCard(
                     overflow = TextOverflow.Ellipsis,
                 )
             }
-            Text(
-                text = station.dialAndPlace ?: stringResource(R.string.station_online_only),
-                style = MaterialTheme.typography.bodySmall,
-                color = TextSecondary,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-            )
+            if (station.isUnavailable) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Rounded.SignalCellularConnectedNoInternet0Bar,
+                        contentDescription = null,
+                        tint = LiveRed,
+                        modifier = Modifier.size(14.dp),
+                    )
+                    Spacer(Modifier.width(4.dp))
+                    Text(
+                        text = stringResource(R.string.station_unavailable),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = LiveRed,
+                        maxLines = 1,
+                    )
+                }
+            } else {
+                Text(
+                    text = station.dialAndPlace ?: stringResource(R.string.station_online_only),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = TextSecondary,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
         }
     }
 }

@@ -26,6 +26,8 @@ import cl.miradio.app.MainActivity
 import cl.miradio.app.R
 import cl.miradio.app.data.local.dao.StationDao
 import cl.miradio.app.data.mapper.toDomain
+import cl.miradio.app.data.settings.DataSaverSettings
+import cl.miradio.app.data.settings.DataUsageTracker
 import cl.miradio.app.di.StreamingHttpClient
 import com.google.common.util.concurrent.Futures
 import com.google.common.util.concurrent.ListenableFuture
@@ -48,6 +50,8 @@ import okhttp3.OkHttpClient
  * - **Reconexión**: [LiveStreamLoadErrorPolicy] reintenta cortes breves sin error visible;
  *   [StreamReconnectionHandler] reconecta tras cortes largos o cuando vuelve la red.
  * - **Sleep Timer**: comando personalizado [PlaybackContract.ACTION_SET_SLEEP_TIMER].
+ * - **Ahorro de datos**: [DataUsageTracker] mide el consumo y [PausedStreamStopper]
+ *   corta la descarga cuando la radio queda en pausa.
  */
 @OptIn(UnstableApi::class)
 @AndroidEntryPoint
@@ -56,12 +60,15 @@ class PlaybackService : MediaSessionService() {
     @Inject lateinit var stationDao: StationDao
     @Inject lateinit var preferences: PlaybackPreferences
     @Inject @StreamingHttpClient lateinit var streamingClient: OkHttpClient
+    @Inject lateinit var dataSaverSettings: DataSaverSettings
+    @Inject lateinit var dataUsageTracker: DataUsageTracker
 
     private val serviceScope = CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate)
 
     private var mediaSession: MediaSession? = null
     private lateinit var sleepTimer: SleepTimer
     private lateinit var reconnectionHandler: StreamReconnectionHandler
+    private lateinit var pausedStreamStopper: PausedStreamStopper
 
     override fun onCreate() {
         super.onCreate()
@@ -71,6 +78,8 @@ class PlaybackService : MediaSessionService() {
         reconnectionHandler = StreamReconnectionHandler(this, player, serviceScope) {
             publishSessionExtras()
         }
+        pausedStreamStopper = PausedStreamStopper(player, serviceScope, dataSaverSettings::isActiveNow)
+        player.addListener(pausedStreamStopper)
         player.addListener(NowPlayingTracker(player))
         player.addListener(object : Player.Listener {
             override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
@@ -106,6 +115,7 @@ class PlaybackService : MediaSessionService() {
 
     override fun onDestroy() {
         sleepTimer.cancel()
+        pausedStreamStopper.cancel()
         reconnectionHandler.release()
         mediaSession?.run {
             player.release()
@@ -119,6 +129,8 @@ class PlaybackService : MediaSessionService() {
     private fun buildPlayer(): ExoPlayer {
         val httpDataSourceFactory = OkHttpDataSource.Factory(streamingClient)
             .setUserAgent(BuildConfig.USER_AGENT)
+            // Mide los bytes reales de cada stream para el contador de consumo.
+            .setTransferListener(dataUsageTracker)
         val mediaSourceFactory = DefaultMediaSourceFactory(DefaultDataSource.Factory(this, httpDataSourceFactory))
             .setLoadErrorHandlingPolicy(LiveStreamLoadErrorPolicy())
 

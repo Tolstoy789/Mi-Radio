@@ -4,13 +4,17 @@ import cl.miradio.app.BuildConfig
 import cl.miradio.app.data.local.dao.FavoriteDao
 import cl.miradio.app.data.local.dao.RecentPlayDao
 import cl.miradio.app.data.local.dao.StationDao
+import cl.miradio.app.data.local.dao.UnavailableStationDao
 import cl.miradio.app.data.local.entity.FavoriteEntity
+import cl.miradio.app.data.local.entity.StationWithFavorite
 import cl.miradio.app.data.local.entity.RecentPlayEntity
+import cl.miradio.app.data.local.entity.UnavailableStationEntity
 import cl.miradio.app.data.mapper.toDomain
 import cl.miradio.app.data.mapper.toEntities
 import cl.miradio.app.data.remote.RadioBrowserApi
 import cl.miradio.app.domain.model.ChileRegion
 import cl.miradio.app.domain.model.Clock
+import cl.miradio.app.domain.model.SimilarStations
 import cl.miradio.app.domain.model.Station
 import cl.miradio.app.domain.model.StationCategory
 import cl.miradio.app.domain.model.region
@@ -21,6 +25,8 @@ import javax.inject.Singleton
 import kotlin.coroutines.cancellation.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
@@ -35,6 +41,7 @@ class StationRepositoryImpl @Inject constructor(
     private val stationDao: StationDao,
     private val favoriteDao: FavoriteDao,
     private val recentPlayDao: RecentPlayDao,
+    private val unavailableDao: UnavailableStationDao,
     private val clock: Clock,
 ) : StationRepository {
 
@@ -47,9 +54,9 @@ class StationRepositoryImpl @Inject constructor(
     ): Flow<List<Station>> {
         val normalizedQuery = query.normalizeForSearch()
         return stationDao.observeStations()
-            .map { rows ->
-                rows.asSequence()
-                    .map { it.toDomain() }
+            .withUnavailable()
+            .map { stations ->
+                stations.asSequence()
                     .filter { category.matches(it) }
                     .filter { region == null || it.region == region }
                     .filter { normalizedQuery.isEmpty() || it.matchesQuery(normalizedQuery) }
@@ -64,17 +71,38 @@ class StationRepositoryImpl @Inject constructor(
             .distinctUntilChanged()
             .flowOn(Dispatchers.Default)
 
-    override fun observeFavorites(): Flow<List<Station>> =
-        stationDao.observeFavorites().map { rows -> rows.map { it.toDomain() } }
+    override fun observeFavorites(): Flow<List<Station>> = stationDao.observeFavorites().withUnavailable()
 
-    override fun observeRecent(): Flow<List<Station>> =
-        stationDao.observeRecent(RECENT_SHOWN).map { rows -> rows.map { it.toDomain() } }
+    override fun observeRecent(): Flow<List<Station>> = stationDao.observeRecent(RECENT_SHOWN).withUnavailable()
 
     override suspend fun recordPlay(stationId: String) {
         recentPlayDao.record(RecentPlayEntity(stationId, clock.nowMillis()), keep = RECENT_KEPT)
     }
 
     override suspend fun clearRecent() = recentPlayDao.clear()
+
+    override suspend fun markUnavailable(stationId: String) {
+        val now = clock.nowMillis()
+        unavailableDao.upsert(UnavailableStationEntity(stationId, now))
+        unavailableDao.deleteOlderThan(now - UNAVAILABLE_TTL_MS)
+    }
+
+    override suspend fun markAvailable(stationId: String) = unavailableDao.remove(stationId)
+
+    override suspend fun findSimilar(stationId: String): Station? {
+        val stations = stationDao.observeStations().withUnavailable().first()
+        val target = stations.firstOrNull { it.id == stationId }
+            ?: stationDao.getStation(stationId)?.toDomain()
+            ?: return null
+        return SimilarStations.pick(target, stations)
+    }
+
+    /** Une las filas con las radios que fallaron hace poco. */
+    private fun Flow<List<StationWithFavorite>>.withUnavailable(): Flow<List<Station>> =
+        combine(unavailableDao.observeSince(clock.nowMillis() - UNAVAILABLE_TTL_MS)) { rows, unavailable ->
+            val ids = unavailable.toSet()
+            rows.map { row -> row.toDomain().let { if (it.id in ids) it.copy(isUnavailable = true) else it } }
+        }
 
     override suspend fun refresh(force: Boolean): RefreshResult = refreshMutex.withLock {
         val now = clock.nowMillis()
@@ -133,6 +161,7 @@ class StationRepositoryImpl @Inject constructor(
         const val CACHE_TTL_MS = 6 * 60 * 60 * 1000L
         const val RECENT_SHOWN = 10
         const val RECENT_KEPT = 30
+        const val UNAVAILABLE_TTL_MS = 6 * 60 * 60 * 1000L
 
         private val DIACRITICS = Regex("\\p{Mn}+")
 

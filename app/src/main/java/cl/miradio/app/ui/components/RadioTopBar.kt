@@ -12,6 +12,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.DataSaverOn
 import androidx.compose.material.icons.rounded.Menu
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Search
@@ -57,6 +58,7 @@ fun RadioTopBar(
     onQueryChange: (String) -> Unit,
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier,
+    onOpenDataSaver: (() -> Unit)? = null,
 ) {
     var isSearching by rememberSaveable { mutableStateOf(query.isNotEmpty()) }
     var menuExpanded by remember { mutableStateOf(false) }
@@ -90,6 +92,16 @@ fun RadioTopBar(
                                 onRefresh()
                             },
                         )
+                        if (onOpenDataSaver != null) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.data_saver_title)) },
+                                leadingIcon = { Icon(Icons.Rounded.DataSaverOn, contentDescription = null) },
+                                onClick = {
+                                    menuExpanded = false
+                                    onOpenDataSaver()
+                                },
+                            )
+                        }
                     }
                 }
             }

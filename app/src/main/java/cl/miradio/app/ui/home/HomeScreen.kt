@@ -37,6 +37,7 @@ fun HomeRoute(
     currentStationId: String?,
     onPlay: (Station) -> Unit,
     snackbarHostState: SnackbarHostState,
+    onOpenDataSaver: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -63,6 +64,7 @@ fun HomeRoute(
         onRetry = viewModel::onRetry,
         onPlay = onPlay,
         onToggleFavorite = { viewModel.onToggleFavorite(it.id) },
+        onOpenDataSaver = onOpenDataSaver,
     )
 }
 
@@ -80,6 +82,7 @@ fun HomeScreen(
     onPlay: (Station) -> Unit,
     onToggleFavorite: (Station) -> Unit,
     modifier: Modifier = Modifier,
+    onOpenDataSaver: (() -> Unit)? = null,
 ) {
     Column(modifier.fillMaxSize()) {
         RadioTopBar(
@@ -87,6 +90,7 @@ fun HomeScreen(
             query = state.query,
             onQueryChange = onQueryChange,
             onRefresh = onRefresh,
+            onOpenDataSaver = onOpenDataSaver,
         )
         CategoryChips(
             selected = state.category,
