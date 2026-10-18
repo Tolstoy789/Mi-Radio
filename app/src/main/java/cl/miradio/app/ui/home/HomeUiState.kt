@@ -1,6 +1,7 @@
 package cl.miradio.app.ui.home
 
 import cl.miradio.app.data.repository.RefreshResult
+import cl.miradio.app.domain.model.ChileRegion
 import cl.miradio.app.domain.model.Station
 import cl.miradio.app.domain.model.StationCategory
 
@@ -9,6 +10,12 @@ data class HomeUiState(
     val stations: List<Station>? = null,
     val query: String = "",
     val category: StationCategory = StationCategory.ALL,
+    /** Región elegida; `null` muestra todo Chile. */
+    val region: ChileRegion? = null,
+    /** Regiones con estaciones en caché, para el selector. */
+    val regions: List<ChileRegion> = emptyList(),
+    /** Últimas estaciones escuchadas. */
+    val recent: List<Station> = emptyList(),
     /** Hay una descarga en curso desde la API. */
     val isFetching: Boolean = false,
     /** Error de carga que impide mostrar la lista (no hay nada en caché). */
@@ -16,9 +23,12 @@ data class HomeUiState(
 ) {
     /** Primera carga sin datos: la grilla muestra placeholders con shimmer. */
     val showShimmer: Boolean
-        get() = stations == null || (stations.isEmpty() && isFetching && query.isEmpty() && category == StationCategory.ALL)
+        get() = stations == null || (stations.isEmpty() && isFetching && !isFiltering)
 
-    val isFiltering: Boolean get() = query.isNotBlank() || category != StationCategory.ALL
+    val isFiltering: Boolean get() = query.isNotBlank() || category != StationCategory.ALL || region != null
+
+    /** La fila de recientes solo aparece en la vista general, sin filtros. */
+    val showRecent: Boolean get() = recent.isNotEmpty() && !isFiltering
 }
 
 /** Mensajes de una sola vez que la UI muestra en un Snackbar. */

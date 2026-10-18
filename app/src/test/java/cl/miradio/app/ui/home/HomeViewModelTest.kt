@@ -3,6 +3,7 @@ package cl.miradio.app.ui.home
 import app.cash.turbine.test
 import cl.miradio.app.data.repository.RefreshResult
 import cl.miradio.app.data.repository.StationRepository
+import cl.miradio.app.domain.model.ChileRegion
 import cl.miradio.app.domain.model.Station
 import cl.miradio.app.domain.model.StationCategory
 import kotlinx.coroutines.CompletableDeferred
@@ -11,6 +12,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -36,9 +38,9 @@ class HomeViewModelTest {
     @After
     fun tearDown() = Dispatchers.resetMain()
 
-    private fun station(id: String, vararg tags: String) = Station(
+    private fun station(id: String, vararg tags: String, state: String? = null) = Station(
         id = id, name = "Radio $id", streamUrl = "http://$id", faviconUrl = null, homepage = null,
-        tags = tags.toList(), frequency = null, state = null, codec = null, bitrate = 0,
+        tags = tags.toList(), frequency = null, state = state, codec = null, bitrate = 0,
         isHls = false, votes = 0, isFavorite = false,
     )
 
@@ -47,10 +49,24 @@ class HomeViewModelTest {
         val refreshResult = CompletableDeferred<RefreshResult>()
         val favoritesToggled = mutableListOf<String>()
 
-        override fun observeStations(query: String, category: StationCategory): Flow<List<Station>> =
-            stations.map { list -> list.filter { category.matches(it) && it.name.contains(query, ignoreCase = true) } }
+        val recent = MutableStateFlow<List<Station>>(emptyList())
 
+        override fun observeStations(
+            query: String,
+            category: StationCategory,
+            region: ChileRegion?,
+        ): Flow<List<Station>> = stations.map { list ->
+            list.filter {
+                category.matches(it) && it.name.contains(query, ignoreCase = true) &&
+                    (region == null || ChileRegion.fromState(it.state) == region)
+            }
+        }
+
+        override fun observeRegions(): Flow<List<ChileRegion>> = flowOf(listOf(ChileRegion.BIOBIO))
         override fun observeFavorites(): Flow<List<Station>> = emptyFlow()
+        override fun observeRecent(): Flow<List<Station>> = recent
+        override suspend fun recordPlay(stationId: String) = Unit
+        override suspend fun clearRecent() { recent.value = emptyList() }
         override suspend fun refresh(force: Boolean): RefreshResult = refreshResult.await()
         override suspend fun toggleFavorite(stationId: String) { favoritesToggled += stationId }
         override suspend fun registerClick(stationId: String) = Unit
@@ -115,5 +131,34 @@ class HomeViewModelTest {
 
         viewModel.onToggleFavorite("2")
         assertEquals(listOf("2"), repository.favoritesToggled)
+    }
+
+    @Test
+    fun `filtra por region y oculta recientes mientras hay filtros`() = runTest(dispatcher) {
+        val repository = FakeRepository().apply {
+            stations.value = listOf(station("1", "rock", state = "Concepción"), station("2", "pop", state = "Santiago"))
+            recent.value = listOf(station("2", "pop"))
+            refreshResult.complete(RefreshResult.Fresh)
+        }
+        val viewModel = HomeViewModel(repository)
+
+        viewModel.uiState.test {
+            advanceUntilIdle()
+            val general = expectMostRecentItem()
+            assertTrue(general.showRecent)
+            assertEquals(listOf(ChileRegion.BIOBIO), general.regions)
+
+            viewModel.onRegionSelected(ChileRegion.BIOBIO)
+            advanceUntilIdle()
+            val filtered = expectMostRecentItem()
+            assertEquals(listOf("1"), filtered.stations?.map { it.id })
+            assertFalse(filtered.showRecent)
+
+            viewModel.onRegionSelected(null)
+            viewModel.onClearRecent()
+            advanceUntilIdle()
+            assertFalse(expectMostRecentItem().showRecent)
+            cancelAndIgnoreRemainingEvents()
+        }
     }
 }

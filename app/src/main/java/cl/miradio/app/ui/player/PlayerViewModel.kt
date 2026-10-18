@@ -27,6 +27,7 @@ class PlayerViewModel @Inject constructor(
                 return@launch
             }
             playerController.play(station)
+            repository.recordPlay(station.id)
             repository.registerClick(station.id)
         }
     }

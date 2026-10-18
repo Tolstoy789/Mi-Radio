@@ -21,10 +21,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import cl.miradio.app.R
 import cl.miradio.app.data.repository.RefreshResult
+import cl.miradio.app.domain.model.ChileRegion
 import cl.miradio.app.domain.model.Station
 import cl.miradio.app.domain.model.StationCategory
 import cl.miradio.app.ui.components.CategoryChips
 import cl.miradio.app.ui.components.RadioTopBar
+import cl.miradio.app.ui.components.RecentStationsRow
+import cl.miradio.app.ui.components.RegionChip
 import cl.miradio.app.ui.components.StateMessage
 import cl.miradio.app.ui.components.StationGrid
 import cl.miradio.app.ui.components.StationGridPlaceholder
@@ -54,6 +57,8 @@ fun HomeRoute(
         currentStationId = currentStationId,
         onQueryChange = viewModel::onQueryChange,
         onCategorySelected = viewModel::onCategorySelected,
+        onRegionSelected = viewModel::onRegionSelected,
+        onClearRecent = viewModel::onClearRecent,
         onRefresh = viewModel::onRefresh,
         onRetry = viewModel::onRetry,
         onPlay = onPlay,
@@ -68,6 +73,8 @@ fun HomeScreen(
     currentStationId: String?,
     onQueryChange: (String) -> Unit,
     onCategorySelected: (StationCategory) -> Unit,
+    onRegionSelected: (ChileRegion?) -> Unit,
+    onClearRecent: () -> Unit,
     onRefresh: () -> Unit,
     onRetry: () -> Unit,
     onPlay: (Station) -> Unit,
@@ -81,7 +88,13 @@ fun HomeScreen(
             onQueryChange = onQueryChange,
             onRefresh = onRefresh,
         )
-        CategoryChips(selected = state.category, onSelected = onCategorySelected)
+        CategoryChips(
+            selected = state.category,
+            onSelected = onCategorySelected,
+            leadingContent = {
+                RegionChip(selected = state.region, regions = state.regions, onSelected = onRegionSelected)
+            },
+        )
         Spacer(Modifier.height(4.dp))
 
         PullToRefreshBox(
@@ -115,6 +128,18 @@ fun HomeScreen(
                     onStationClick = onPlay,
                     onToggleFavorite = onToggleFavorite,
                     modifier = Modifier.fillMaxSize(),
+                    header = if (state.showRecent) {
+                        {
+                            RecentStationsRow(
+                                stations = state.recent,
+                                currentStationId = currentStationId,
+                                onStationClick = onPlay,
+                                onClear = onClearRecent,
+                            )
+                        }
+                    } else {
+                        null
+                    },
                 )
             }
         }
