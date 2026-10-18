@@ -16,7 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import cl.miradio.app.ui.theme.CoralAccent
+import cl.miradio.app.ui.theme.Accent
 import cl.miradio.app.ui.theme.TextPrimary
 import cl.miradio.app.ui.theme.TextSecondary
 
@@ -37,13 +37,13 @@ fun StateMessage(
         verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Icon(icon, contentDescription = null, tint = CoralAccent, modifier = Modifier.size(56.dp))
+        Icon(icon, contentDescription = null, tint = Accent, modifier = Modifier.size(56.dp))
         Text(title, style = MaterialTheme.typography.titleMedium, color = TextPrimary, textAlign = TextAlign.Center)
         Text(body, style = MaterialTheme.typography.bodyMedium, color = TextSecondary, textAlign = TextAlign.Center)
         if (actionLabel != null && onAction != null) {
             Button(
                 onClick = onAction,
-                colors = ButtonDefaults.buttonColors(containerColor = CoralAccent, contentColor = TextPrimary),
+                colors = ButtonDefaults.buttonColors(containerColor = Accent, contentColor = TextPrimary),
             ) {
                 Text(actionLabel)
             }

@@ -50,7 +50,7 @@ import cl.miradio.app.ui.components.PlayPauseButton
 import cl.miradio.app.ui.components.StationLogo
 import cl.miradio.app.ui.theme.CardBorder
 import cl.miradio.app.ui.theme.CardSurface
-import cl.miradio.app.ui.theme.CoralAccent
+import cl.miradio.app.ui.theme.Accent
 import cl.miradio.app.ui.theme.MiniPlayerSurface
 import cl.miradio.app.ui.theme.TextPrimary
 import cl.miradio.app.ui.theme.TextSecondary
@@ -146,8 +146,8 @@ private fun VolumeControl(volume: Float, onVolumeChange: (Float) -> Unit) {
                 .weight(1f)
                 .padding(horizontal = 8.dp),
             colors = SliderDefaults.colors(
-                thumbColor = CoralAccent,
-                activeTrackColor = CoralAccent,
+                thumbColor = Accent,
+                activeTrackColor = Accent,
                 inactiveTrackColor = CardBorder,
             ),
         )
@@ -179,7 +179,7 @@ private fun SleepTimerControl(endElapsed: Long?, onSleepTimer: (Int) -> Unit) {
                     stringResource(R.string.sleep_timer_title)
                 },
                 style = MaterialTheme.typography.titleSmall,
-                color = if (endElapsed != null) CoralAccent else TextSecondary,
+                color = if (endElapsed != null) Accent else TextSecondary,
             )
         }
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -198,7 +198,7 @@ private fun SleepTimerControl(endElapsed: Long?, onSleepTimer: (Int) -> Unit) {
             }
             if (endElapsed != null) {
                 TextButton(onClick = { onSleepTimer(0) }) {
-                    Text(stringResource(R.string.sleep_timer_cancel), color = CoralAccent)
+                    Text(stringResource(R.string.sleep_timer_cancel), color = Accent)
                 }
             }
         }

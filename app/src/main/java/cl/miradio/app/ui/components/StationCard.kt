@@ -35,12 +35,13 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import cl.miradio.app.R
 import cl.miradio.app.domain.model.Station
+import cl.miradio.app.domain.model.dialAndPlace
 import cl.miradio.app.ui.theme.Background
 import cl.miradio.app.ui.theme.CardBorder
 import cl.miradio.app.ui.theme.CardBorderWidth
 import cl.miradio.app.ui.theme.CardShape
 import cl.miradio.app.ui.theme.CardSurface
-import cl.miradio.app.ui.theme.CoralAccent
+import cl.miradio.app.ui.theme.Accent
 import cl.miradio.app.ui.theme.TextPrimary
 import cl.miradio.app.ui.theme.TextSecondary
 
@@ -52,7 +53,7 @@ fun StationCard(
     onToggleFavorite: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val borderColor by animateColorAsState(if (isCurrent) CoralAccent else CardBorder, label = "cardBorder")
+    val borderColor by animateColorAsState(if (isCurrent) Accent else CardBorder, label = "cardBorder")
     Card(
         onClick = onClick,
         modifier = modifier.fillMaxWidth(),
@@ -80,7 +81,7 @@ fun StationCard(
                     Icon(
                         imageVector = Icons.Rounded.GraphicEq,
                         contentDescription = stringResource(R.string.cd_now_playing),
-                        tint = CoralAccent,
+                        tint = Accent,
                         modifier = Modifier.size(16.dp),
                     )
                     Spacer(Modifier.width(4.dp))
@@ -94,7 +95,7 @@ fun StationCard(
                 )
             }
             Text(
-                text = station.frequency ?: station.state ?: stringResource(R.string.station_online_only),
+                text = station.dialAndPlace ?: stringResource(R.string.station_online_only),
                 style = MaterialTheme.typography.bodySmall,
                 color = TextSecondary,
                 maxLines = 1,
@@ -118,7 +119,7 @@ private fun FavoriteButton(isFavorite: Boolean, onClick: () -> Unit, modifier: M
             contentDescription = stringResource(
                 if (isFavorite) R.string.action_remove_favorite else R.string.action_add_favorite,
             ),
-            tint = if (isFavorite) CoralAccent else TextPrimary,
+            tint = if (isFavorite) Accent else TextPrimary,
             modifier = Modifier.size(20.dp),
         )
     }

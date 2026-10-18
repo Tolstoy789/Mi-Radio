@@ -1,9 +1,11 @@
 <resources>
-    <color name="background">#FF121214</color>
-    <color name="surface_card">#FF1E1E24</color>
-    <color name="card_border">#FF2E2E38</color>
-    <color name="mini_player">#FF25252E</color>
-    <color name="accent">#FFFF5722</color>
+    <color name="background">#FF0D1221</color>
+    <color name="surface_card">#FF161D33</color>
+    <color name="card_border">#FF26304D</color>
+    <color name="mini_player">#FF1C2440</color>
+    <color name="accent">#FFFF4F5A</color>
     <color name="text_primary">#FFFFFFFF</color>
-    <color name="text_secondary">#FF9E9EA7</color>
+    <color name="text_secondary">#FF8E98B8</color>
+    <color name="icon_background">#FF1A2C78</color>
+    <color name="icon_band">#FFFF4F5A</color>
 </resources>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Versión monocromática para los íconos temáticos de Android 13+. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <group
+        android:scaleX="0.6667"
+        android:scaleY="0.6667"
+        android:translateX="18"
+        android:translateY="18">
+        <path android:fillColor="#FFFFFFFF" android:pathData="M30,22 L31.94,27.33 L37.61,27.53 L33.14,31.02 L34.7,36.47 L30,33.3 L25.3,36.47 L26.86,31.02 L22.39,27.53 L28.06,27.33 Z" />
+        <path android:fillColor="#FFFFFFFF" android:pathData="M28,64 a4.5,4.5 0,0 1,4.5 4.5 v13 a4.5,4.5 0,0 1,-4.5 4.5 a4.5,4.5 0,0 1,-4.5 -4.5 v-13 a4.5,4.5 0,0 1,4.5 -4.5 z" />
+        <path android:fillColor="#FFFFFFFF" android:pathData="M41,50 a4.5,4.5 0,0 1,4.5 4.5 v27 a4.5,4.5 0,0 1,-4.5 4.5 a4.5,4.5 0,0 1,-4.5 -4.5 v-27 a4.5,4.5 0,0 1,4.5 -4.5 z" />
+        <path android:fillColor="#FFFFFFFF" android:pathData="M54,38 a4.5,4.5 0,0 1,4.5 4.5 v39 a4.5,4.5 0,0 1,-4.5 4.5 a4.5,4.5 0,0 1,-4.5 -4.5 v-39 a4.5,4.5 0,0 1,4.5 -4.5 z" />
+        <path android:fillColor="#FFFFFFFF" android:pathData="M67,54 a4.5,4.5 0,0 1,4.5 4.5 v23 a4.5,4.5 0,0 1,-4.5 4.5 a4.5,4.5 0,0 1,-4.5 -4.5 v-23 a4.5,4.5 0,0 1,4.5 -4.5 z" />
+        <path android:fillColor="#FFFFFFFF" android:pathData="M80,68 a4.5,4.5 0,0 1,4.5 4.5 v9 a4.5,4.5 0,0 1,-4.5 4.5 a4.5,4.5 0,0 1,-4.5 -4.5 v-9 a4.5,4.5 0,0 1,4.5 -4.5 z" />
+    </group>
+</vector>

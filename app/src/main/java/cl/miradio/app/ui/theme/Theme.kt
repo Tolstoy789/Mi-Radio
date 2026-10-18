@@ -5,11 +5,11 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 
 private val RadioColorScheme = darkColorScheme(
-    primary = CoralAccent,
+    primary = Accent,
     onPrimary = TextPrimary,
-    primaryContainer = CoralAccent.copy(alpha = 0.18f),
-    onPrimaryContainer = CoralAccent,
-    secondary = CoralAccent,
+    primaryContainer = Accent.copy(alpha = 0.18f),
+    onPrimaryContainer = Accent,
+    secondary = Accent,
     onSecondary = TextPrimary,
     background = Background,
     onBackground = TextPrimary,

@@ -5,4 +5,14 @@
         <item name="android:navigationBarColor">@color/background</item>
         <item name="android:colorAccent">@color/accent</item>
     </style>
+
+    <!--
+        Splash del sistema (SplashScreen API, compatible desde API 23): muestra el ícono
+        sobre el azul noche y da paso a la animación en Compose (IntroAnimation).
+    -->
+    <style name="Theme.MiRadio.Starting" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_foreground</item>
+        <item name="postSplashScreenTheme">@style/Theme.MiRadio</item>
+    </style>
 </resources>

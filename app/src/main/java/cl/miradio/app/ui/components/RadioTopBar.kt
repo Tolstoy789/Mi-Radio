@@ -41,7 +41,7 @@ import androidx.compose.ui.text.input.ImeAction
 import cl.miradio.app.R
 import cl.miradio.app.ui.theme.Background
 import cl.miradio.app.ui.theme.CardSurface
-import cl.miradio.app.ui.theme.CoralAccent
+import cl.miradio.app.ui.theme.Accent
 import cl.miradio.app.ui.theme.TextPrimary
 import cl.miradio.app.ui.theme.TextSecondary
 
@@ -142,7 +142,7 @@ private fun SearchField(query: String, onQueryChange: (String) -> Unit) {
             unfocusedContainerColor = CardSurface,
             focusedIndicatorColor = Background.copy(alpha = 0f),
             unfocusedIndicatorColor = Background.copy(alpha = 0f),
-            cursorColor = CoralAccent,
+            cursorColor = Accent,
             focusedTextColor = TextPrimary,
             unfocusedTextColor = TextPrimary,
         ),

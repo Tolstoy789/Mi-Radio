@@ -42,7 +42,7 @@ import cl.miradio.app.ui.player.FloatingMiniPlayer
 import cl.miradio.app.ui.player.NowPlayingSheet
 import cl.miradio.app.ui.player.PlayerViewModel
 import cl.miradio.app.ui.theme.Background
-import cl.miradio.app.ui.theme.CoralAccent
+import cl.miradio.app.ui.theme.Accent
 import cl.miradio.app.ui.theme.TextSecondary
 
 /** Raíz de la UI: navegación inferior, mini-player flotante y hoja Now Playing. */
@@ -128,9 +128,9 @@ private fun RadioNavigationBar(
                 },
                 label = { Text(stringResource(destination.labelRes)) },
                 colors = NavigationBarItemDefaults.colors(
-                    selectedIconColor = CoralAccent,
-                    selectedTextColor = CoralAccent,
-                    indicatorColor = CoralAccent.copy(alpha = 0.16f),
+                    selectedIconColor = Accent,
+                    selectedTextColor = Accent,
+                    indicatorColor = Accent.copy(alpha = 0.16f),
                     unselectedIconColor = TextSecondary,
                     unselectedTextColor = TextSecondary,
                 ),
