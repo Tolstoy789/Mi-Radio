@@ -42,6 +42,16 @@ app/src/main/java/cl/miradio/app/
 - Expone el Sleep Timer como comando de sesión (`PlaybackContract.ACTION_SET_SLEEP_TIMER`)
   y publica su estado y el de reconexión en los extras de sesión.
 
+## Diseño "Cordillera"
+
+Azul noche (#0D1221) con el rojo (#FF4F5A) y el blanco de la bandera. El ícono adaptativo
+(con versión monocromática para Android 13+) combina una estrella con un ecualizador con forma
+de cerros. Al abrir la app, el splash del sistema da paso a `IntroAnimation`: las barras laten,
+se dibuja el perfil de la cordillera, la estrella gira hasta su lugar y aparece el nombre.
+
+Tipografías Unbounded (títulos) y Manrope (texto), incluidas en `res/font` bajo la
+SIL Open Font License.
+
 ## Compilar
 
 Requiere Android Studio Ladybug o superior (JDK 17).
@@ -54,4 +64,4 @@ Requiere Android Studio Ladybug o superior (JDK 17).
 
 1. Configuración, datos y audio ✅
 2. ViewModels y UI en Compose ✅
-3. Integración y pulido
+3. Diseño Cordillera: ícono, animación de inicio y tema ✅

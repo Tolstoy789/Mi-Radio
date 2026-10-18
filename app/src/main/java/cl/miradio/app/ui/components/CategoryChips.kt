@@ -17,7 +17,7 @@ import cl.miradio.app.R
 import cl.miradio.app.domain.model.StationCategory
 import cl.miradio.app.ui.theme.CardBorder
 import cl.miradio.app.ui.theme.CardSurface
-import cl.miradio.app.ui.theme.CoralAccent
+import cl.miradio.app.ui.theme.Accent
 import cl.miradio.app.ui.theme.TextPrimary
 import cl.miradio.app.ui.theme.TextSecondary
 
@@ -42,14 +42,14 @@ fun CategoryChips(
                 colors = FilterChipDefaults.filterChipColors(
                     containerColor = CardSurface,
                     labelColor = TextSecondary,
-                    selectedContainerColor = CoralAccent,
+                    selectedContainerColor = Accent,
                     selectedLabelColor = TextPrimary,
                 ),
                 border = FilterChipDefaults.filterChipBorder(
                     enabled = true,
                     selected = isSelected,
                     borderColor = CardBorder,
-                    selectedBorderColor = CoralAccent,
+                    selectedBorderColor = Accent,
                 ),
             )
         }

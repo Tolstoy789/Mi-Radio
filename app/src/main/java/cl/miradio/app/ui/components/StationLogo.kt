@@ -18,7 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import cl.miradio.app.ui.theme.CardBorder
-import cl.miradio.app.ui.theme.CoralAccent
+import cl.miradio.app.ui.theme.Accent
 import cl.miradio.app.ui.theme.MiniPlayerSurface
 import coil.compose.SubcomposeAsyncImage
 import coil.request.ImageRequest
@@ -66,7 +66,7 @@ private fun LogoFallback(iconSize: Dp) {
         Icon(
             imageVector = Icons.Rounded.Radio,
             contentDescription = null,
-            tint = CoralAccent,
+            tint = Accent,
             modifier = Modifier.size(iconSize),
         )
     }

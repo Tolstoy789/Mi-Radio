@@ -17,7 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import cl.miradio.app.R
-import cl.miradio.app.ui.theme.CoralAccent
+import cl.miradio.app.ui.theme.Accent
 import cl.miradio.app.ui.theme.TextPrimary
 
 /** Botón circular Play/Pause; mientras carga muestra un [CircularProgressIndicator]. */
@@ -33,7 +33,7 @@ fun PlayPauseButton(
         Box(
             modifier = Modifier
                 .size(size)
-                .background(CoralAccent, CircleShape),
+                .background(Accent, CircleShape),
             contentAlignment = Alignment.Center,
         ) {
             if (isLoading) {

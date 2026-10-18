@@ -17,3 +17,9 @@ data class Station(
     val votes: Int,
     val isFavorite: Boolean,
 )
+
+/** Línea secundaria de la tarjeta: "93.3 FM · Santiago", solo lo que se conozca. */
+val Station.dialAndPlace: String?
+    get() = listOfNotNull(frequency, state?.takeIf { it.isNotBlank() })
+        .joinToString(" · ")
+        .ifEmpty { null }
