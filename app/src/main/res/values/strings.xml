@@ -1,3 +1,58 @@
 <resources>
     <string name="app_name">Mi Radio</string>
+
+    <!-- Navegación -->
+    <string name="nav_home">Inicio</string>
+    <string name="nav_favorites">Favoritos</string>
+    <string name="home_title">Radios de Chile</string>
+    <string name="favorites_title">Mis favoritas</string>
+
+    <!-- Categorías -->
+    <string name="category_all">Todas</string>
+    <string name="category_news">Noticias</string>
+    <string name="category_pop">Pop</string>
+    <string name="category_rock">Rock</string>
+
+    <!-- Acciones -->
+    <string name="action_menu">Menú</string>
+    <string name="action_search">Buscar</string>
+    <string name="action_clear_search">Borrar búsqueda</string>
+    <string name="action_close_search">Cerrar búsqueda</string>
+    <string name="action_refresh_stations">Actualizar estaciones</string>
+    <string name="action_retry">Reintentar</string>
+    <string name="action_play">Reproducir</string>
+    <string name="action_pause">Pausar</string>
+    <string name="action_add_favorite">Agregar a favoritas</string>
+    <string name="action_remove_favorite">Quitar de favoritas</string>
+    <string name="search_hint">Buscar radio o género</string>
+
+    <!-- Tarjetas y reproductor -->
+    <string name="live_badge">EN VIVO</string>
+    <string name="station_online_only">Online</string>
+    <string name="cd_now_playing">Sonando ahora</string>
+    <string name="cd_volume">Volumen</string>
+    <string name="player_reconnecting">Reconectando…</string>
+    <string name="player_error_network">Sin conexión. Toca Play para reintentar.</string>
+    <string name="player_error_unavailable">Esta radio no está transmitiendo ahora.</string>
+    <string name="player_error_format">Formato de audio no compatible.</string>
+    <string name="player_error_unknown">No se pudo reproducir esta radio.</string>
+
+    <!-- Sleep Timer -->
+    <string name="sleep_timer_title">Temporizador de apagado</string>
+    <string name="sleep_timer_remaining">Se apaga en %1$s</string>
+    <string name="sleep_timer_option">%1$d min</string>
+    <string name="sleep_timer_cancel">Cancelar</string>
+
+    <!-- Estados -->
+    <string name="error_title">No pudimos cargar las radios</string>
+    <string name="error_no_connection">Revisa tu conexión a internet e inténtalo de nuevo.</string>
+    <string name="error_server">El servicio de radios no responde. Inténtalo en unos minutos.</string>
+    <string name="error_unknown">Ocurrió un error inesperado.</string>
+    <string name="empty_search_title">Sin resultados</string>
+    <string name="empty_search_body">No encontramos radios con ese filtro. Prueba con otra búsqueda o categoría.</string>
+    <string name="empty_list_body">Todavía no hay radios disponibles. Desliza hacia abajo para actualizar.</string>
+    <string name="favorites_empty_title">Aún no tienes favoritas</string>
+    <string name="favorites_empty_body">Toca el corazón de una radio para guardarla aquí.</string>
+    <string name="message_offline_cache">Sin conexión: mostrando las radios guardadas.</string>
+    <string name="message_updated">Lista actualizada: %1$d radios.</string>
 </resources>

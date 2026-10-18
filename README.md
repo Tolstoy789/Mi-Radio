@@ -14,10 +14,21 @@ app/src/main/java/cl/miradio/app/
 │   ├── remote/      API de Radio Browser, User-Agent y failover entre servidores espejo
 │   ├── local/       Room: caché de estaciones y tabla de favoritos
 │   └── mapper/      DTO → entidad → modelo de dominio (incluye extracción del dial)
-├── domain/model/    Station
-├── di/              Módulos Hilt (red, base de datos, coroutines)
-└── playback/        PlaybackService, reconexión, Sleep Timer, MediaItem
+│   └── repository/  Repositorio offline-first (Room como fuente de verdad)
+├── domain/model/    Station, StationCategory
+├── di/              Módulos Hilt (red, base de datos, repositorio, coroutines)
+├── playback/        PlaybackService, PlayerController, reconexión, Sleep Timer
+└── ui/              Compose: tema, componentes, inicio, favoritos, reproductor
 ```
+
+## UI
+
+- Barra superior con menú (actualizar estaciones), título y buscador; chips de categoría debajo.
+- Grilla de 2 columnas con logo (Coil, con fallback), nombre, dial y corazón de favorito.
+- `Modifier.shimmerEffect()` en los placeholders mientras carga la primera lista.
+- `FloatingMiniPlayer` sobre la barra de navegación con badge EN VIVO y Play/Pause
+  (spinner mientras hace buffering o reconecta).
+- `NowPlayingSheet` (`ModalBottomSheet`) con logo grande, volumen y Sleep Timer de 15, 30 o 60 min.
 
 ## Motor de audio
 
@@ -42,5 +53,5 @@ Requiere Android Studio Ladybug o superior (JDK 17).
 ## Fases
 
 1. Configuración, datos y audio ✅
-2. ViewModels y UI en Compose
+2. ViewModels y UI en Compose ✅
 3. Integración y pulido
