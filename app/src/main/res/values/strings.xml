@@ -31,6 +31,8 @@
     <string name="live_badge">EN VIVO</string>
     <string name="station_online_only">Online</string>
     <string name="cd_now_playing">Sonando ahora</string>
+    <string name="now_playing_label">SONANDO AHORA</string>
+    <string name="action_search_song">Buscar esta canción</string>
     <string name="cd_volume">Volumen</string>
     <string name="player_reconnecting">Reconectando…</string>
     <string name="player_error_network">Sin conexión. Toca Play para reintentar.</string>

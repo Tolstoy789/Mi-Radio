@@ -127,17 +127,14 @@ class PlayerController @Inject constructor(
     private fun publishState() {
         val player = controller ?: return
         val item = player.currentMediaItem
-        // currentMediaItem conserva la metadata original de la estación; mediaMetadata
-        // del reproductor trae además el título ICY que emite el stream.
+        // NowPlayingTracker escribe la canción en curso en el propio MediaItem.
         val stationMetadata = item?.mediaMetadata ?: MediaMetadata.EMPTY
-        val stationName = stationMetadata.title?.toString().orEmpty()
-        val streamTitle = player.mediaMetadata.title?.toString()?.trim()
         val extras = player.sessionExtras
 
         _state.value = PlayerUiState(
             stationId = item?.mediaId?.takeIf { it.isNotEmpty() },
-            stationName = stationName,
-            nowPlaying = streamTitle?.takeIf { it.isNotEmpty() && !it.equals(stationName, ignoreCase = true) },
+            stationName = stationMetadata.stationName,
+            nowPlaying = stationMetadata.nowPlaying,
             frequency = stationMetadata.frequency,
             artworkUri = stationMetadata.artworkUri,
             isPlaying = player.isPlaying,
