@@ -10,17 +10,22 @@ import cl.miradio.app.playback.PlayerController
 import cl.miradio.app.playback.PlayerUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
 /** ViewModel compartido por el mini-player, Now Playing y las grillas. */
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class PlayerViewModel @Inject constructor(
     private val playerController: PlayerController,
@@ -37,6 +42,13 @@ class PlayerViewModel @Inject constructor(
     val isStationDown: StateFlow<Boolean> = combine(state, networkMonitor.isOnline) { player, online ->
         player.isStationFault(online)
     }.stateIn(viewModelScope, SharingStarted.Eagerly, false)
+
+    /** La radio que suena está en favoritas (corazón de Now Playing). */
+    val isFavorite: StateFlow<Boolean> = state
+        .map { it.stationId }
+        .distinctUntilChanged()
+        .flatMapLatest { id -> if (id == null) flowOf(false) else repository.observeIsFavorite(id) }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), false)
 
     private val _messages = Channel<PlayerMessage>(Channel.BUFFERED)
     val messages: Flow<PlayerMessage> = _messages.receiveAsFlow()
@@ -82,6 +94,11 @@ class PlayerViewModel @Inject constructor(
             play(similar)
             _messages.send(PlayerMessage.SwitchedTo(similar.name))
         }
+    }
+
+    fun toggleFavorite() {
+        val id = state.value.stationId ?: return
+        viewModelScope.launch { repository.toggleFavorite(id) }
     }
 
     fun togglePlayPause() {

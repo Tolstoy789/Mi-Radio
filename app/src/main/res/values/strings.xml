@@ -7,6 +7,15 @@
     <string name="nav_favorites">Favoritos</string>
     <string name="home_title">Radios de Chile</string>
     <string name="favorites_title">Mis favoritas</string>
+    <plurals name="favorites_count">
+        <item quantity="one">%1$d radio guardada</item>
+        <item quantity="other">%1$d radios guardadas</item>
+    </plurals>
+
+    <!-- Saludo de Inicio -->
+    <string name="greeting_morning">Buenos días</string>
+    <string name="greeting_afternoon">Buenas tardes</string>
+    <string name="greeting_night">Buenas noches</string>
 
     <!-- Categorías -->
     <string name="category_all">Todas</string>
@@ -19,6 +28,9 @@
     <string name="region_picker_title">Elige una región</string>
     <string name="recent_title">Escuchadas recientemente</string>
     <string name="recent_clear">Borrar</string>
+    <string name="featured_title">Populares en Chile</string>
+    <string name="featured_rank">#%1$d</string>
+    <string name="all_stations_title">Todas las radios</string>
 
     <!-- Acciones -->
     <string name="action_menu">Menú</string>
@@ -32,6 +44,13 @@
     <string name="action_add_favorite">Agregar a favoritas</string>
     <string name="action_remove_favorite">Quitar de favoritas</string>
     <string name="search_hint">Buscar radio o género</string>
+    <string name="action_more_options">Más opciones</string>
+    <string name="action_share">Compartir</string>
+    <string name="action_open_website">Abrir sitio web</string>
+    <string name="action_close_player">Cerrar reproductor</string>
+    <string name="action_similar_station">Cambiar a una radio parecida</string>
+    <string name="share_listening">Estoy escuchando %1$s en Mi Radio 📻</string>
+    <string name="share_song">Suena: %1$s</string>
 
     <!-- Tarjetas y reproductor -->
     <string name="live_badge">EN VIVO</string>

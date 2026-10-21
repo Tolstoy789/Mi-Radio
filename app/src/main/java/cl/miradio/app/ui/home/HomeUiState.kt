@@ -16,6 +16,8 @@ data class HomeUiState(
     val regions: List<ChileRegion> = emptyList(),
     /** Últimas estaciones escuchadas. */
     val recent: List<Station> = emptyList(),
+    /** Las más votadas, para el carrusel "Populares en Chile". */
+    val featured: List<Station> = emptyList(),
     /** Hay una descarga en curso desde la API. */
     val isFetching: Boolean = false,
     /** Error de carga que impide mostrar la lista (no hay nada en caché). */
@@ -29,6 +31,9 @@ data class HomeUiState(
 
     /** La fila de recientes solo aparece en la vista general, sin filtros. */
     val showRecent: Boolean get() = recent.isNotEmpty() && !isFiltering
+
+    /** El carrusel de destacadas, igual que recientes, solo sin filtros. */
+    val showFeatured: Boolean get() = featured.isNotEmpty() && !isFiltering
 }
 
 /** Mensajes de una sola vez que la UI muestra en un Snackbar. */

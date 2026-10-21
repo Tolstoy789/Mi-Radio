@@ -26,6 +26,9 @@ interface StationRepository {
 
     fun observeFavorites(): Flow<List<Station>>
 
+    /** Si la estación está en favoritas; se actualiza al agregarla o quitarla. */
+    fun observeIsFavorite(stationId: String): Flow<Boolean>
+
     /** Últimas estaciones escuchadas, la más reciente primero. */
     fun observeRecent(): Flow<List<Station>>
 
