@@ -3,21 +3,29 @@ package cl.miradio.app.ui.components
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.ElectricBolt
+import androidx.compose.material.icons.rounded.Mic
+import androidx.compose.material.icons.rounded.Newspaper
+import androidx.compose.material.icons.rounded.Radio
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import cl.miradio.app.R
 import cl.miradio.app.domain.model.StationCategory
+import cl.miradio.app.ui.theme.Accent
 import cl.miradio.app.ui.theme.CardBorder
 import cl.miradio.app.ui.theme.CardSurface
-import cl.miradio.app.ui.theme.Accent
+import cl.miradio.app.ui.theme.PillShape
 import cl.miradio.app.ui.theme.TextPrimary
 import cl.miradio.app.ui.theme.TextSecondary
 
@@ -29,6 +37,7 @@ fun CategoryChips(
     /** Chip extra al inicio de la fila (p. ej. el selector de región). */
     leadingContent: (@Composable () -> Unit)? = null,
 ) {
+    val haptics = rememberHaptics()
     LazyRow(
         modifier = modifier,
         contentPadding = PaddingValues(horizontal = 16.dp),
@@ -39,14 +48,22 @@ fun CategoryChips(
             val isSelected = category == selected
             FilterChip(
                 selected = isSelected,
-                onClick = { onSelected(category) },
+                onClick = {
+                    if (!isSelected) haptics.tick()
+                    onSelected(category)
+                },
                 label = { Text(stringResource(category.labelRes)) },
-                shape = RoundedCornerShape(50),
+                leadingIcon = {
+                    Icon(category.icon, contentDescription = null, modifier = Modifier.size(18.dp))
+                },
+                shape = PillShape,
                 colors = FilterChipDefaults.filterChipColors(
                     containerColor = CardSurface,
                     labelColor = TextSecondary,
+                    iconColor = TextSecondary,
                     selectedContainerColor = Accent,
                     selectedLabelColor = TextPrimary,
+                    selectedLeadingIconColor = TextPrimary,
                 ),
                 border = FilterChipDefaults.filterChipBorder(
                     enabled = true,
@@ -66,4 +83,12 @@ val StationCategory.labelRes: Int
         StationCategory.NEWS -> R.string.category_news
         StationCategory.POP -> R.string.category_pop
         StationCategory.ROCK -> R.string.category_rock
+    }
+
+private val StationCategory.icon: ImageVector
+    get() = when (this) {
+        StationCategory.ALL -> Icons.Rounded.Radio
+        StationCategory.NEWS -> Icons.Rounded.Newspaper
+        StationCategory.POP -> Icons.Rounded.Mic
+        StationCategory.ROCK -> Icons.Rounded.ElectricBolt
     }

@@ -73,6 +73,9 @@ class StationRepositoryImpl @Inject constructor(
 
     override fun observeFavorites(): Flow<List<Station>> = stationDao.observeFavorites().withUnavailable()
 
+    override fun observeIsFavorite(stationId: String): Flow<Boolean> =
+        favoriteDao.observeIsFavorite(stationId).distinctUntilChanged()
+
     override fun observeRecent(): Flow<List<Station>> = stationDao.observeRecent(RECENT_SHOWN).withUnavailable()
 
     override suspend fun recordPlay(stationId: String) {

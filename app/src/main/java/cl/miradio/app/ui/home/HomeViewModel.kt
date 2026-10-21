@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import cl.miradio.app.data.repository.RefreshResult
 import cl.miradio.app.data.repository.StationRepository
 import cl.miradio.app.domain.model.ChileRegion
+import cl.miradio.app.domain.model.FeaturedStations
 import cl.miradio.app.domain.model.Station
 import cl.miradio.app.domain.model.StationCategory
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -70,6 +71,8 @@ class HomeViewModel @Inject constructor(
             region = filter.region,
             regions = regions,
             recent = recent,
+            // Con filtros la lista está recortada y el carrusel no se muestra.
+            featured = if (filter.isActive) emptyList() else stations?.let(FeaturedStations::pick).orEmpty(),
             isFetching = fetch.isFetching,
             blockingError = fetch.blockingError,
         )
@@ -121,7 +124,9 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private data class Filter(val query: String, val category: StationCategory, val region: ChileRegion?)
+    private data class Filter(val query: String, val category: StationCategory, val region: ChileRegion?) {
+        val isActive: Boolean get() = query.isNotBlank() || category != StationCategory.ALL || region != null
+    }
 
     private data class FetchState(
         val isFetching: Boolean = false,

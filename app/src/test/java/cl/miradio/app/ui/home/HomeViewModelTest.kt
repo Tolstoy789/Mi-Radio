@@ -64,6 +64,7 @@ class HomeViewModelTest {
 
         override fun observeRegions(): Flow<List<ChileRegion>> = flowOf(listOf(ChileRegion.BIOBIO))
         override fun observeFavorites(): Flow<List<Station>> = emptyFlow()
+        override fun observeIsFavorite(stationId: String): Flow<Boolean> = flowOf(false)
         override fun observeRecent(): Flow<List<Station>> = recent
         override suspend fun recordPlay(stationId: String) = Unit
         override suspend fun clearRecent() { recent.value = emptyList() }
@@ -161,6 +162,31 @@ class HomeViewModelTest {
             viewModel.onClearRecent()
             advanceUntilIdle()
             assertFalse(expectMostRecentItem().showRecent)
+            cancelAndIgnoreRemainingEvents()
+        }
+    }
+
+    @Test
+    fun `destaca las mas votadas solo en la vista general`() = runTest(dispatcher) {
+        val repository = FakeRepository().apply {
+            stations.value = listOf(
+                station("1", "rock").copy(votes = 5),
+                station("2", "pop").copy(votes = 90),
+                station("3", "rock").copy(votes = 40),
+            )
+            refreshResult.complete(RefreshResult.Fresh)
+        }
+        val viewModel = HomeViewModel(repository)
+
+        viewModel.uiState.test {
+            advanceUntilIdle()
+            val general = expectMostRecentItem()
+            assertTrue(general.showFeatured)
+            assertEquals(listOf("2", "3", "1"), general.featured.map { it.id })
+
+            viewModel.onQueryChange("radio")
+            advanceUntilIdle()
+            assertFalse(expectMostRecentItem().showFeatured)
             cancelAndIgnoreRemainingEvents()
         }
     }
